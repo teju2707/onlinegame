@@ -23,7 +23,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                SCANNER_HOME = tool 'SonarQube Scanner 7.2.0.5079'
+                SCANNER_HOME = tool 'SonarQubeScanner'
             }
             steps {
                 withSonarQubeEnv('SonarQubeDev') { // Use the SonarQube server name from Jenkins Configure System
