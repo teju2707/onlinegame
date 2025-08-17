@@ -27,15 +27,25 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            environment {
+                SCANNER_HOME = tool 'SonarQubeScanner'
+            }
             steps {
-                withSonarQubeEnv('SONARQUBE_SERVER') {   // Replace with your server name
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
+                withSonarQubeEnv('SonarQubeDev') {
+                    // Standard SonarScanner CLI command for JS/Node projects
+                    sh """${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=onlinegame \
                         -Dsonar.sources=. \
-                        -Dsonar.java.binaries=target \
-                        -Dsonar.host.url=http://3.80.156.67:9000
-                    """
+                        -Dsonar.host.url=http://<YOUR_SONARQUBE_SERVER>:9000 \
+                        -Dsonar.login=<YOUR_SONARQUBE_TOKEN>"""
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
