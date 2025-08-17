@@ -22,4 +22,18 @@ pipeline {
             }
         }
     }
+    stage ('SonarQube Analysis') {
+        steps {
+            script {
+                withSonarQubeEnv('SONARQUBE') {
+                    sh '''
+                      ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=onlinegame \
+                        -Dsonar.sources=. \
+                        -Dsonar.java.binaries=target/
+            
+                }
+            }
+        }
+    }
 }
