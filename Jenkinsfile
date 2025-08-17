@@ -1,17 +1,12 @@
 pipeline {
-    agent any 
+    agent any
 
     tools {
-        jdk 'JAVA'
-        maven 'MAVEN'
-        nodejs 'NODEJS'
+        jdk 'JDK 17'
+        nodejs 'node16'
     }
 
-    environment {
-        SCANNER_HOME = tool 'SonarQube Scanner 7.2.0.5079'   // Replace with your scanner tool name
-    }
-
-    stages { 
+    stages {
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -20,9 +15,9 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'GITHUB_CREDENTIALS',
-                    url: 'https://github.com/teju2707/onlinegame.git'
+                git branch: 'main', 
+                    url: 'https://github.com/teju2707/onlinegame.git', 
+                    credentialsId: 'github-credentails'
             }
         }
 
@@ -31,13 +26,15 @@ pipeline {
                 SCANNER_HOME = tool 'SonarQube Scanner 7.2.0.5079'
             }
             steps {
-                withSonarQubeEnv('SonarQubeDev') {
+                withSonarQubeEnv('SonarQubeDev') { // Use the SonarQube server name from Jenkins Configure System
                     withCredentials([string(credentialsId: 'SONAR', variable: 'SONAR_TOKEN')]) {
-                        sh """${SCANNER_HOME}/bin/sonar-scanner \
+                        sh """
+                            ${SCANNER_HOME}/bin/sonar-scanner \
                             -Dsonar.projectKey=onlinegame \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://<YOUR_SONARQUBE_SERVER>:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}"""
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
                     }
                 }
             }
