@@ -4,8 +4,7 @@ pipeline {
     tools {
         jdk 'JAVA'
         maven 'MAVEN'
-        // NodeJS tool only needed for SonarQube (if scanner requires Node)
-        nodejs 'NODEJS24'
+        nodejs 'NODEJS'  // Use existing tool name
     }
 
     stages {
@@ -51,15 +50,10 @@ pipeline {
         }
 
         stage('Install & Test (Docker)') {
-            agent {
-                docker {
-                    image 'node:24-alpine'
-                    args  '-u 1000:1000'
-                }
-            }
             steps {
-                sh 'npm ci'
-                sh 'npm test'
+                sh '''
+                    docker run --rm -v "$WORKSPACE":/app -w /app node:24-alpine sh -c "npm ci && npm test"
+                '''
             }
         }
 
@@ -75,6 +69,32 @@ pipeline {
         stage('Trivy scan') {
             steps {
                 sh 'trivy fs . > trivy-report.txt'
+            }
+        }
+
+        stage('Build & Push to ECR') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-credentail', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        # Configure AWS
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws configure set default.region us-east-1
+
+                        # Login to ECR
+                        aws ecr get-login-password --region us-east-1 | \
+                        docker login --username AWS --password-stdin 935598635277.dkr.ecr.us-east-1.amazonaws.com
+
+                        # Build Docker image
+                        docker build -t jenkins-pipeline/node.js .
+
+                        # Tag for ECR
+                        docker tag jenkins-pipeline/node.js:latest 935598635277.dkr.ecr.us-east-1.amazonaws.com/jenkins-pipeline/node.js:latest
+
+                        # Push to ECR
+                        docker push 935598635277.dkr.ecr.us-east-1.amazonaws.com/jenkins-pipeline/node.js:latest
+                    '''
+                }
             }
         }
     }
