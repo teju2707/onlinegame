@@ -27,7 +27,7 @@ pipeline {
                 SCANNER_HOME = tool 'SONAR'  // 1
             }
             steps {
-                withSonarQubeEnv('SONARQUBE') {                   // 2
+                withSonarQubeEnv('SONAR') {                   // 2
                     withCredentials([string(credentialsId: 'SONAR-TEJU', variable: 'SONAR_TOKEN')]) { // 3
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \\
