@@ -28,7 +28,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SONAR') {                   // 2
-                    withCredentials([string(credentialsId: 'SONAR-TEJU', variable: 'SONAR_TOKEN')]) { // 3
+                    withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) { // 3
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \\
                             -Dsonar.projectKey=BingoOnlineGame \\
