@@ -24,11 +24,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                SCANNER_HOME = tool 'SONAR'  // 1
+                SCANNER_HOME = tool 'SONAR'   // 1 -> SONAR scanner tool name in Jenkins global tools
             }
             steps {
-                withSonarQubeEnv('SONAR') {                   // 2
-                    withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) { // 3
+                withSonarQubeEnv('SONAR') {   // 2 -> SonarQube server name (configure in Jenkins > Configure System)
+                    withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) { // 3 -> token stored in Jenkins credentials
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \
                             -Dsonar.projectKey=BingoOnlineGame \
@@ -55,14 +55,19 @@ pipeline {
             }
         }
 
-        stage('Owasp Scan') {
+        stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '', nvdCredentialsId: 'SONARQUBE', odcInstallation: 'OWASP'
+                dependencyCheck additionalArguments: '', 
+                                nvdCredentialsId: 'SONARQUBE', 
+                                odcInstallation: 'OWASP'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
-        stage ('Trivy scan') {
+
+        stage('Trivy scan') {
             steps {
-                sh "trivy fs . > trivy-report.txt"
-    }
-}
+                sh 'trivy fs . > trivy-report.txt'
+            }
+        }
+    }  // 🔴 <-- closing braces for stages
+}      // 🔴 <-- closing braces for pipeline
