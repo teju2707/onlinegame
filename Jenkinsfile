@@ -46,6 +46,11 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }   
+        } 
+        stage (Install dependencies) {
+            steps {
+                sh 'npm install'
+            }
+        }
     }
 }
