@@ -73,6 +73,5 @@ pipeline {
                 sh 'trivy fs . > trivy-report.txt'
             }
         }
-
     }
 }
