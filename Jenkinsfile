@@ -16,8 +16,8 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', 
-                    url: 'https://github.com/teju2707/onlinegame.git', 
+                git branch: 'main',
+                    url: 'https://github.com/teju2707/onlinegame.git',
                     credentialsId: 'github-credentails'
             }
         }
@@ -30,26 +30,35 @@ pipeline {
                 withSonarQubeEnv('SONAR') {                   // 2
                     withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) { // 3
                         sh """
-                            ${SCANNER_HOME}/bin/sonar-scanner \\
-                            -Dsonar.projectKey=BingoOnlineGame \\
-                            -Dsonar.sources=. \\
-                            -Dsonar.host.url=http://34.227.112.104:9000 \\
+                            ${SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=BingoOnlineGame \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://34.227.112.104:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                 }
             }
         }
-        stage ('quality gate') {
+
+        stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        } 
-        stage (Install dependencies) {
+        }
+
+        stage('Install dependencies') {
             steps {
                 sh 'npm install'
+            }
+        }
+
+        stage('Owasp Scan') {
+            steps {
+                dependencyCheck additionalArguments: '', nvdCredentialsId: 'SONARQUBE', odcInstallation: 'OWASP'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
     }
