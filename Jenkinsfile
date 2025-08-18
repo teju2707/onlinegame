@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK 17'
-        nodejs 'node16'
+        jdk 'JAVA'
+        nodejs 'NODEJS'
     }
 
     stages {
@@ -22,29 +22,19 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                SCANNER_HOME = tool 'SonarQubeScanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarQubeDev') { // Use the SonarQube server name from Jenkins Configure System
-                    withCredentials([string(credentialsId: 'SONAR', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                            ${SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectKey=onlinegame \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://<YOUR_SONARQUBE_SERVER>:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
+    environment {
+        SCANNER_HOME = tool 'SONAR'  // 1
+    }
+    steps {
+        withSonarQubeEnv('SONARQUBE') {                   // 2
+            withCredentials([string(credentialsId: 'SONAR-TEJU', variable: 'SONAR_TOKEN')]) { // 3
+                sh """
+                    ${SCANNER_HOME}/bin/sonar-scanner \\
+                    -Dsonar.projectKey= BingoOnlineGame\\
+                    -Dsonar.sources=. \\
+                    -Dsonar.host.url= http://34.227.112.104:9000  \\
+                    -Dsonar.login=${SONAR_TOKEN}
+                """
             }
         }
     }
