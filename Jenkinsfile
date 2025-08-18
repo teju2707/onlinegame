@@ -4,7 +4,8 @@ pipeline {
     tools {
         jdk 'JAVA'
         maven 'MAVEN'
-        nodejs 'NODEJS'
+        // NodeJS tool only needed for SonarQube (if scanner requires Node)
+        nodejs 'NODEJS24'
     }
 
     stages {
@@ -24,11 +25,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                SCANNER_HOME = tool 'SONAR'   // 1 -> SONAR scanner tool name in Jenkins global tools
+                SCANNER_HOME = tool 'SONAR'
             }
             steps {
-                withSonarQubeEnv('SONAR') {   // 2 -> SonarQube server name (configure in Jenkins > Configure System)
-                    withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) { // 3 -> token stored in Jenkins credentials
+                withSonarQubeEnv('SONAR') {
+                    withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) {
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \
                             -Dsonar.projectKey=BingoOnlineGame \
@@ -44,14 +45,17 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
 
-        stage('Install dependencies') {
+        stage('Install dependencies & Test (Dockerized)') {
             steps {
-                sh 'npm install'
+                sh '''
+                    docker run --rm -v $PWD:/app -w /app node:24-alpine \
+                    sh -c "npm install && npm test"
+                '''
             }
         }
 
@@ -69,5 +73,6 @@ pipeline {
                 sh 'trivy fs . > trivy-report.txt'
             }
         }
-    }  // 🔴 <-- closing braces for stages
-}      // 🔴 <-- closing braces for pipeline
+
+    }
+}
