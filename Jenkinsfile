@@ -50,19 +50,23 @@ pipeline {
             }
         }
 
-        stage('Install dependencies & Test (Dockerized)') {
+        stage('Install & Test (Docker)') {
+            agent {
+                docker {
+                    image 'node:24-alpine'
+                    args  '-u 1000:1000'
+                }
+            }
             steps {
-                sh '''
-                    docker run --rm -v $PWD:/app -w /app node:24-alpine \
-                    sh -c "npm install && npm test"
-                '''
+                sh 'npm ci'
+                sh 'npm test'
             }
         }
 
         stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '', 
-                                nvdCredentialsId: 'SONARQUBE', 
+                dependencyCheck additionalArguments: '',
+                                nvdCredentialsId: 'SONARQUBE',
                                 odcInstallation: 'OWASP'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
