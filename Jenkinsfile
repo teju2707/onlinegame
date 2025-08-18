@@ -4,7 +4,6 @@ pipeline {
     tools {
         jdk 'JAVA'
         maven 'MAVEN'
-        sonar 'SONAR'  // 1
         nodejs 'NODEJS'
     }
 
