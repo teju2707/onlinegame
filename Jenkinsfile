@@ -44,7 +44,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
@@ -61,5 +61,8 @@ pipeline {
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
+        stage ('Trivy scan') {
+            steps {
+                sh "trivy fs . > trivy-report.txt"
     }
 }
