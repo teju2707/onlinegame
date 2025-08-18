@@ -22,19 +22,21 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-    environment {
-        SCANNER_HOME = tool 'SONAR'  // 1
-    }
-    steps {
-        withSonarQubeEnv('SONARQUBE') {                   // 2
-            withCredentials([string(credentialsId: 'SONAR-TEJU', variable: 'SONAR_TOKEN')]) { // 3
-                sh """
-                    ${SCANNER_HOME}/bin/sonar-scanner \\
-                    -Dsonar.projectKey= BingoOnlineGame\\
-                    -Dsonar.sources=. \\
-                    -Dsonar.host.url= http://34.227.112.104:9000  \\
-                    -Dsonar.login=${SONAR_TOKEN}
-                """
+            environment {
+                SCANNER_HOME = tool 'SONAR'  // 1
+            }
+            steps {
+                withSonarQubeEnv('SONARQUBE') {                   // 2
+                    withCredentials([string(credentialsId: 'SONAR-TEJU', variable: 'SONAR_TOKEN')]) { // 3
+                        sh """
+                            ${SCANNER_HOME}/bin/sonar-scanner \\
+                            -Dsonar.projectKey=BingoOnlineGame \\
+                            -Dsonar.sources=. \\
+                            -Dsonar.host.url=http://34.227.112.104:9000 \\
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
     }
