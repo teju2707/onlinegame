@@ -1,23 +1,23 @@
-# Use Node 16 to match package.json requirements
-FROM node:20-alpine
+# Use an official Node.js runtime as a parent image
+FROM node:16
 
-# Set working directory
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package files first (for better caching)
+# Copy package.json and package-lock.json to the container
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --production --no-audit
+# Install application dependencies
+RUN npm install
 
-# Copy application code
+# Copy the rest of the application files to the container
 COPY . .
 
-# Build if build script exists
-RUN npm run build || echo "No build script found"
+# Build the React app
+RUN npm run build
 
-# Expose port 3000
+# Expose port 3000 (assuming your Next.js app runs on port 3000)
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Define the command to run your application in development mode
+CMD ["npm", "run", "dev"]
