@@ -33,7 +33,7 @@ pipeline {
                             ${SCANNER_HOME}/bin/sonar-scanner \
                             -Dsonar.projectKey=BingoOnlineGame \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=http://34.227.112.104:9000 \
+                            -Dsonar.host.url=http://3.88.195.165:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
