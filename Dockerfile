@@ -1,16 +1,23 @@
-FROM node:20-alpine
+# Use an official Node.js runtime as a parent image
+FROM node:16
 
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package files and install dependencies
+# Copy package.json and package-lock.json to the container
 COPY package*.json ./
-RUN npm ci --omit=dev --no-audit
 
-# Copy source code AFTER installing dependencies
+# Install application dependencies
+RUN npm install
+
+# Copy the rest of the application files to the container
 COPY . .
 
-# Expose port if needed
+# Build the React app
+RUN npm run build
+
+# Expose port 3000 (assuming your Next.js app runs on port 3000)
 EXPOSE 3000
 
-# Start command
+# Define the command to run your application in development mode
 CMD ["npm", "start"]
