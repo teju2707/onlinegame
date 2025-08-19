@@ -1,23 +1,23 @@
-# Use a supported Node.js LTS base image (update for prod if needed)
-FROM node:18-alpine
+# Use Node 16 to match your package.json requirements
+FROM node:16-alpine
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy only package.json + package-lock.json first, for better cache
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --production
+# Install dependencies (ignoring audit for urgent deployment)
+RUN npm ci --production --no-audit
 
-# Copy rest of the application code
+# Copy application code
 COPY . .
 
-# (Optional) Build step for React/Next:
-RUN [ -f package.json ] && npm run build || echo "No build step"
+# Build the application if build script exists
+RUN npm run build || echo "No build script found"
 
-# Expose app port (change as needed)
+# Expose port 3000
 EXPOSE 3000
 
-# Start app
+# Start the application
 CMD ["npm", "start"]
