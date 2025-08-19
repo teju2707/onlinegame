@@ -1,5 +1,5 @@
 # Use Node 16 to match package.json requirements
-FROM node:16-alpine
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /usr/src/app
