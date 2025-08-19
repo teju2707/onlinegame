@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Define the command to run your application in development mode
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
