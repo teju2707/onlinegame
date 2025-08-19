@@ -50,12 +50,13 @@ pipeline {
         }
 
         stage('Install & Test (Docker)') {
-            steps {
-                sh '''
-                    docker run --rm -v "$WORKSPACE":/app -w /app node:24-alpine sh -c "npm ci && npm test"
-                '''
-            }
-        } 
+    steps {
+        sh '''
+          docker run --rm -v "$WORKSPACE":/app -w /app node:16-alpine sh -c "npm ci && npm test && npm audit --audit-level=high"
+        '''
+    }
+}
+
 
         stage('OWASP Dependency Check') {
             steps {
