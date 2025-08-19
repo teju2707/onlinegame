@@ -89,26 +89,33 @@ pipeline {
             }
         }
 
-        stage('Build & Push to ECR') {
+         stage('Build & Push to ECR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'AWS Credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                withCredentials([usernamePassword(credentialsId: 'AWS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
-                        # Configure AWS
+                        # Configure AWS CLI
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
                         export AWS_DEFAULT_REGION=us-east-1
 
+                        # Test AWS CLI access
+                        aws sts get-caller-identity
+
                         # Login to ECR
+                        echo "Logging into ECR..."
                         aws ecr get-login-password --region us-east-1 | \
                         docker login --username AWS --password-stdin 935598635277.dkr.ecr.us-east-1.amazonaws.com
 
                         # Build Docker image
+                        echo "Building Docker image..."
                         docker build -t jenkins-pipeline/node.js .
 
                         # Tag for ECR
+                        echo "Tagging image..."
                         docker tag jenkins-pipeline/node.js:latest 935598635277.dkr.ecr.us-east-1.amazonaws.com/jenkins-pipeline/node.js:latest
 
                         # Push to ECR
+                        echo "Pushing to ECR..."
                         docker push 935598635277.dkr.ecr.us-east-1.amazonaws.com/jenkins-pipeline/node.js:latest
                         
                         echo "✅ Image pushed successfully to ECR!"
