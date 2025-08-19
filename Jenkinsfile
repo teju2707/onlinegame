@@ -91,7 +91,7 @@ pipeline {
 
         stage('Build & Push to ECR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'EKS', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                withCredentials([usernamePassword(credentialsId: 'AWS Credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         # Configure AWS
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
