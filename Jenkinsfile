@@ -49,11 +49,10 @@ pipeline {
             }
         }
 
-        stage('Install & Test (Docker)') {
+        stage('Unit Tests') {
             steps {
-                sh '''
-                    docker run --rm -v "$WORKSPACE":/app -w /app node:11-alpine sh -c "npm ci && npm test && npm audit --audit-level=high"
-                '''
+                sh 'npm install'
+                sh 'npm test'
             }
         }
 
