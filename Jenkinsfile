@@ -27,7 +27,7 @@ pipeline {
                 SCANNER_HOME = tool 'SONAR'
             }
             steps {
-                withSonarQubeEnv('SONAR') {
+                withSonarQubeEnv('SONAR-SYSTEM') {
                     withCredentials([string(credentialsId: 'SONARQUBE', variable: 'SONAR_TOKEN')]) {
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \
@@ -55,7 +55,7 @@ pipeline {
                     docker run --rm -v "$WORKSPACE":/app -w /app node:24-alpine sh -c "npm ci && npm test"
                 '''
             }
-        }
+        } 
 
         stage('OWASP Dependency Check') {
             steps {
